@@ -3,79 +3,105 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>InterviewSpark AI</title>
+    <title>Interview Copilot</title>
     <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11/lib/core.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11/lib/languages/python.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11/lib/languages/javascript.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11/lib/languages/typescript.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11/lib/languages/java.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11/lib/languages/cpp.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11/lib/languages/sql.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/atom-one-dark.min.css" />
   </head>
   <body>
     <header class="topbar">
-      <div class="logo">✨ InterviewSpark AI</div>
-      <nav>
-        <a href="#features">Features</a>
-        <a href="#pricing">Pricing</a>
-        <a href="#app">App</a>
-      </nav>
+      <div class="brand">
+        <span class="dot"></span>
+        Interview Copilot
+      </div>
+      <div class="controls">
+        <select id="mode" title="Interview mode">
+          <option value="general">General</option>
+          <option value="behavioral">Behavioral</option>
+          <option value="coding">Coding</option>
+          <option value="system-design">System Design</option>
+        </select>
+        <select id="provider" title="AI provider"></select>
+        <select id="model" title="Model"></select>
+        <label class="switch" title="Auto-detect questions and answer instantly">
+          <input type="checkbox" id="autopilot" checked />
+          <span>Auto-pilot</span>
+        </label>
+      </div>
+      <div class="status" id="status">Ready.</div>
     </header>
 
-    <section class="hero">
-      <h1>Your Real-Time AI Interview Practice Assistant</h1>
-      <p>Works on your MacBook in the browser. Live transcription, instant answers, coding support, and auto notes.</p>
-      <button id="jumpApp">Open App</button>
-    </section>
-
-    <section id="features" class="cards">
-      <article><h3>🎙️ Live Speech Recognition</h3><p>Capture interview questions from your microphone in real-time.</p></article>
-      <article><h3>💡 Instant AI Answers</h3><p>Generate concise, interview-ready responses using GPT models.</p></article>
-      <article><h3>🧠 Resume + Docs Context</h3><p>Upload your resume and notes so answers are tailored to your background.</p></article>
-      <article><h3>📝 Post-Interview Notes</h3><p>Summarize transcripts into key points and action items.</p></article>
-    </section>
-
-    <section id="app" class="app">
-      <h2>Practice Copilot</h2>
-      <div class="grid">
-        <div>
-          <label>Mode</label>
-          <select id="mode">
-            <option value="general">General</option>
-            <option value="behavioral">Behavioral</option>
-            <option value="coding">Coding</option>
-            <option value="system-design">System Design</option>
-          </select>
-
-          <label>Detected / typed question</label>
-          <textarea id="question" rows="4" placeholder="Ask a question or use live transcription..."></textarea>
-
-          <div class="buttons">
-            <button id="startRec">Start Listening</button>
-            <button id="stopRec">Stop</button>
-            <button id="getAnswer">Generate Answer</button>
+    <main class="layout">
+      <aside class="sidebar">
+        <section class="card">
+          <h3>Listening</h3>
+          <div class="row">
+            <button id="micBtn" class="primary">Start Mic</button>
+            <button id="tabBtn">Capture Meeting Audio</button>
           </div>
+          <p class="hint">
+            Mic = your voice. <br />
+            Capture = interviewer audio (share the Zoom/Meet tab with "Share audio").
+          </p>
+          <div class="row">
+            <button id="screenshotBtn">Screenshot Question</button>
+            <button id="askBtn" class="primary">Ask Now</button>
+          </div>
+        </section>
 
-          <label>Live transcript</label>
-          <textarea id="transcript" rows="7" placeholder="Transcript appears here..."></textarea>
+        <section class="card">
+          <h3>Resume</h3>
+          <input type="file" id="resumeFile" accept=".txt,.md,.pdf,.json,.csv" />
+          <textarea id="resumeText" rows="6" placeholder="Or paste your resume..."></textarea>
+        </section>
+
+        <section class="card">
+          <h3>Notes / Knowledge Base</h3>
+          <input type="file" id="notesFile" accept=".txt,.md,.pdf,.json,.csv" />
+          <textarea id="notesText" rows="5" placeholder="Company info, projects, anything to reference..."></textarea>
+        </section>
+
+        <section class="card">
+          <h3>Question</h3>
+          <textarea id="question" rows="3" placeholder="Auto-detected or type your own..."></textarea>
+          <div class="row">
+            <button id="summarizeBtn">Generate Post-Call Notes</button>
+            <button id="clearBtn">Clear</button>
+          </div>
+        </section>
+      </aside>
+
+      <section class="main">
+        <div class="pane">
+          <div class="pane-header">
+            <h2>Live Transcript</h2>
+            <span id="recDot" class="recdot"></span>
+          </div>
+          <div id="transcript" class="transcript" contenteditable="true" spellcheck="false"></div>
         </div>
 
-        <div>
-          <label>Resume (txt/md)</label>
-          <input type="file" id="resumeFile" accept=".txt,.md,.json,.csv" />
-          <textarea id="resumeText" rows="5" placeholder="Or paste resume text..."></textarea>
-
-          <label>Supporting docs / notes (txt/md)</label>
-          <input type="file" id="notesFile" accept=".txt,.md,.json,.csv" />
-          <textarea id="notesText" rows="5" placeholder="Or paste notes..."></textarea>
-
-          <label>AI answer</label>
-          <textarea id="answer" rows="9" placeholder="Generated answer appears here..."></textarea>
-          <div class="buttons">
-            <button id="summarize">Summarize Transcript</button>
+        <div class="pane answer-pane">
+          <div class="pane-header">
+            <h2>AI Answer</h2>
+            <span id="thinking" class="thinking" hidden>thinking…</span>
           </div>
+          <div id="answer" class="answer markdown">
+            <div class="placeholder">
+              <p>Your answer will stream here in real time.</p>
+              <p class="muted">Tip: turn on <b>Auto-pilot</b> and start the mic. The copilot detects when the interviewer asks something and answers automatically.</p>
+            </div>
+          </div>
+          <img id="screenshot" class="screenshot" hidden />
         </div>
-      </div>
-      <p id="status"></p>
-    </section>
-
-    <footer>
-      <p>Built for interview practice and coaching. Use responsibly.</p>
-    </footer>
+      </section>
+    </main>
 
     <script src="app.js"></script>
   </body>
