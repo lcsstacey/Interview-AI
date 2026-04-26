@@ -1,4 +1,4 @@
-# InterviewSpark AI (MacBook-ready)
+# Interview Spark
 
 A local web app inspired by interview AI copilots.
 
