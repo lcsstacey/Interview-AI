@@ -3,17 +3,15 @@
   --bg: #0b1020;
   --card: #151c32;
   --muted: #9ba9c9;
+  --accent: #8b5cf6;
 }
-
 * { box-sizing: border-box; }
-
 body {
   margin: 0;
   font-family: Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
   background: radial-gradient(circle at top, #131c38, var(--bg));
   color: #e7ecff;
 }
-
 .topbar {
   display: flex;
   justify-content: space-between;
@@ -24,24 +22,19 @@ body {
   backdrop-filter: blur(8px);
   background: rgba(11, 16, 32, 0.85);
 }
-
 .logo { font-weight: 700; }
-
 nav a { color: var(--muted); margin-left: 16px; text-decoration: none; }
-
-.hero { text-align: center; padding: 74px 20px 34px; }
-.hero h1 { max-width: 900px; margin: 0 auto 16px; font-size: 40px; }
-.hero p { max-width: 780px; margin: 0 auto 24px; color: var(--muted); }
-
+.hero { text-align: center; padding: 80px 20px 40px; }
+.hero h1 { max-width: 840px; margin: 0 auto 16px; font-size: 42px; }
+.hero p { max-width: 700px; margin: 0 auto 24px; color: var(--muted); }
 button {
   background: linear-gradient(45deg, #7c3aed, #2563eb);
-  color: #fff;
+  color: white;
   border: none;
   border-radius: 10px;
-  padding: 10px 13px;
+  padding: 11px 14px;
   cursor: pointer;
 }
-
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -50,28 +43,20 @@ button {
   max-width: 1100px;
   margin: 0 auto;
 }
-
-.cards article,
-.app {
+.cards article, .app {
   background: var(--card);
   border: 1px solid #2a345e;
   border-radius: 12px;
   padding: 14px;
 }
-
 .app { max-width: 1100px; margin: 25px auto; }
-
 .grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
 }
-
 label { display: block; margin: 10px 0 6px; color: var(--muted); }
-
-textarea,
-select,
-input {
+textarea, select, input[type="file"] {
   width: 100%;
   background: #0f1530;
   color: #e7ecff;
@@ -79,11 +64,9 @@ input {
   border-radius: 10px;
   padding: 10px;
 }
-
 .buttons { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
 #status { color: #9ee6b4; }
 footer { text-align: center; color: var(--muted); padding: 24px; }
-
 @media (max-width: 900px) {
   .grid { grid-template-columns: 1fr; }
   .hero h1 { font-size: 30px; }

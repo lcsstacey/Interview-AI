@@ -11,41 +11,28 @@
       <div class="logo">✨ InterviewSpark AI</div>
       <nav>
         <a href="#features">Features</a>
+        <a href="#pricing">Pricing</a>
         <a href="#app">App</a>
       </nav>
     </header>
 
     <section class="hero">
-      <h1>Real-Time Interview Copilot (Practical + Bring-Your-Own Model)</h1>
-      <p>Listen to live interview audio, transcribe in near real-time, and generate smart responses with OpenAI, Anthropic, Gemini, or Ollama.</p>
+      <h1>Your Real-Time AI Interview Practice Assistant</h1>
+      <p>Works on your MacBook in the browser. Live transcription, instant answers, coding support, and auto notes.</p>
       <button id="jumpApp">Open App</button>
     </section>
 
     <section id="features" class="cards">
-      <article><h3>🎧 Live conversation capture</h3><p>Capture microphone and optional tab/system audio and transcribe continuously.</p></article>
-      <article><h3>🤖 Model/provider switcher</h3><p>Choose provider + model dynamically per session (or use server env defaults).</p></article>
-      <article><h3>🧠 Resume/document grounding</h3><p>Upload files to tailor responses to your background and project details.</p></article>
-      <article><h3>📝 Instant recap</h3><p>Generate post-interview notes and focused improvement plans.</p></article>
+      <article><h3>🎙️ Live Speech Recognition</h3><p>Capture interview questions from your microphone in real-time.</p></article>
+      <article><h3>💡 Instant AI Answers</h3><p>Generate concise, interview-ready responses using GPT models.</p></article>
+      <article><h3>🧠 Resume + Docs Context</h3><p>Upload your resume and notes so answers are tailored to your background.</p></article>
+      <article><h3>📝 Post-Interview Notes</h3><p>Summarize transcripts into key points and action items.</p></article>
     </section>
 
     <section id="app" class="app">
-      <h2>Live Copilot</h2>
+      <h2>Practice Copilot</h2>
       <div class="grid">
         <div>
-          <label>Provider</label>
-          <select id="provider">
-            <option value="openai">OpenAI</option>
-            <option value="anthropic">Anthropic</option>
-            <option value="gemini">Google Gemini</option>
-            <option value="ollama">Ollama (local)</option>
-          </select>
-
-          <label>Model</label>
-          <input id="model" placeholder="e.g. gpt-5 / claude-sonnet-4-0 / gemini-2.5-pro / llama3.1:8b" />
-
-          <label>API key (optional, local session only)</label>
-          <input id="apiKey" type="password" placeholder="leave empty to use server env key" />
-
           <label>Mode</label>
           <select id="mode">
             <option value="general">General</option>
@@ -55,31 +42,29 @@
           </select>
 
           <label>Detected / typed question</label>
-          <textarea id="question" rows="4" placeholder="Type or auto-fill from transcript..."></textarea>
+          <textarea id="question" rows="4" placeholder="Ask a question or use live transcription..."></textarea>
 
           <div class="buttons">
-            <button id="startMic">Start Mic STT</button>
-            <button id="stopMic">Stop Mic STT</button>
-            <button id="startSystem">Start Tab/System Audio</button>
-            <button id="stopSystem">Stop Tab/System Audio</button>
+            <button id="startRec">Start Listening</button>
+            <button id="stopRec">Stop</button>
             <button id="getAnswer">Generate Answer</button>
           </div>
 
           <label>Live transcript</label>
-          <textarea id="transcript" rows="8" placeholder="Transcript appears here..."></textarea>
+          <textarea id="transcript" rows="7" placeholder="Transcript appears here..."></textarea>
         </div>
 
         <div>
-          <label>Resume (txt/md/json/csv)</label>
+          <label>Resume (txt/md)</label>
           <input type="file" id="resumeFile" accept=".txt,.md,.json,.csv" />
-          <textarea id="resumeText" rows="5"></textarea>
+          <textarea id="resumeText" rows="5" placeholder="Or paste resume text..."></textarea>
 
-          <label>Notes/docs (txt/md/json/csv)</label>
+          <label>Supporting docs / notes (txt/md)</label>
           <input type="file" id="notesFile" accept=".txt,.md,.json,.csv" />
-          <textarea id="notesText" rows="5"></textarea>
+          <textarea id="notesText" rows="5" placeholder="Or paste notes..."></textarea>
 
-          <label>AI output</label>
-          <textarea id="answer" rows="10"></textarea>
+          <label>AI answer</label>
+          <textarea id="answer" rows="9" placeholder="Generated answer appears here..."></textarea>
           <div class="buttons">
             <button id="summarize">Summarize Transcript</button>
           </div>
@@ -89,7 +74,7 @@
     </section>
 
     <footer>
-      <p>Designed for interview prep/coaching. Use ethically and follow employer policies.</p>
+      <p>Built for interview practice and coaching. Use responsibly.</p>
     </footer>
 
     <script src="app.js"></script>

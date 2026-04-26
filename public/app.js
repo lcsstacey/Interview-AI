@@ -1,58 +1,36 @@
-const $ = (id) => document.getElementById(id);
+const questionEl = document.getElementById('question');
+const transcriptEl = document.getElementById('transcript');
+const answerEl = document.getElementById('answer');
+const statusEl = document.getElementById('status');
+const modeEl = document.getElementById('mode');
+const resumeTextEl = document.getElementById('resumeText');
+const notesTextEl = document.getElementById('notesText');
 
-const providerEl = $('provider');
-const modelEl = $('model');
-const apiKeyEl = $('apiKey');
-const modeEl = $('mode');
-const questionEl = $('question');
-const transcriptEl = $('transcript');
-const answerEl = $('answer');
-const statusEl = $('status');
-const resumeTextEl = $('resumeText');
-const notesTextEl = $('notesText');
+const jumpApp = document.getElementById('jumpApp');
+const startRec = document.getElementById('startRec');
+const stopRec = document.getElementById('stopRec');
+const getAnswer = document.getElementById('getAnswer');
+const summarize = document.getElementById('summarize');
 
-const jumpApp = $('jumpApp');
-const startMic = $('startMic');
-const stopMic = $('stopMic');
-const startSystem = $('startSystem');
-const stopSystem = $('stopSystem');
-const getAnswer = $('getAnswer');
-const summarize = $('summarize');
-const resumeFile = $('resumeFile');
-const notesFile = $('notesFile');
+const resumeFile = document.getElementById('resumeFile');
+const notesFile = document.getElementById('notesFile');
 
 let recognition;
-let micListening = false;
-let captureStream;
-let mediaRecorder;
-let recordingInterval;
+let listening = false;
 
-function status(msg, err = false) {
+jumpApp.addEventListener('click', () => {
+  document.getElementById('app').scrollIntoView({ behavior: 'smooth' });
+});
+
+function setStatus(msg, isError = false) {
   statusEl.textContent = msg;
-  statusEl.style.color = err ? '#ff9d9d' : '#9ee6b4';
+  statusEl.style.color = isError ? '#ff9d9d' : '#9ee6b4';
 }
 
-function providerPayload() {
-  return {
-    provider: providerEl.value,
-    model: modelEl.value.trim() || undefined,
-    apiKey: apiKeyEl.value.trim() || undefined
-  };
-}
-
-function detectLatestQuestion() {
-  const lines = transcriptEl.value
-    .split('\n')
-    .map((line) => line.trim())
-    .filter(Boolean);
-  const lastQuestion = [...lines].reverse().find((line) => line.endsWith('?'));
-  if (lastQuestion) questionEl.value = lastQuestion;
-}
-
-function setupMicStt() {
+function setupSpeechRecognition() {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) {
-    status('Web Speech API not available in this browser.', true);
+    setStatus('Speech recognition is not supported in this browser.', true);
     return null;
   }
 
@@ -62,156 +40,111 @@ function setupMicStt() {
   rec.lang = 'en-US';
 
   rec.onresult = (event) => {
+    let interim = '';
     let finalText = transcriptEl.value;
+
     for (let i = event.resultIndex; i < event.results.length; i += 1) {
       const result = event.results[i];
       if (result.isFinal) {
         finalText += `${result[0].transcript.trim()}\n`;
+      } else {
+        interim += result[0].transcript;
       }
     }
+
     transcriptEl.value = finalText;
-    detectLatestQuestion();
+
+    const candidate = `${finalText} ${interim}`.trim();
+    const lines = candidate.split('\n').map((l) => l.trim()).filter(Boolean);
+    const lastLine = lines[lines.length - 1] || '';
+    if (lastLine.endsWith('?')) {
+      questionEl.value = lastLine;
+    }
   };
 
-  rec.onerror = (event) => status(`Mic error: ${event.error}`, true);
+  rec.onerror = (e) => setStatus(`Mic error: ${e.error}`, true);
   rec.onend = () => {
-    if (micListening) rec.start();
+    if (listening) rec.start();
   };
 
   return rec;
 }
 
-recognition = setupMicStt();
+recognition = setupSpeechRecognition();
 
-jumpApp.addEventListener('click', () => $('app').scrollIntoView({ behavior: 'smooth' }));
-
-startMic.addEventListener('click', () => {
+startRec.addEventListener('click', () => {
   if (!recognition) return;
-  micListening = true;
+  listening = true;
   recognition.start();
-  status('Microphone transcription started.');
+  setStatus('Listening...');
 });
 
-stopMic.addEventListener('click', () => {
+stopRec.addEventListener('click', () => {
   if (!recognition) return;
-  micListening = false;
+  listening = false;
   recognition.stop();
-  status('Microphone transcription stopped.');
+  setStatus('Stopped listening.');
 });
 
-async function transcribeChunk(blob) {
-  const data = new FormData();
-  data.append('audio', blob, 'chunk.webm');
-  data.append('provider', providerEl.value);
-  if (apiKeyEl.value.trim()) data.append('apiKey', apiKeyEl.value.trim());
-
-  const res = await fetch('/api/transcribe', { method: 'POST', body: data });
-  const json = await res.json();
-  if (!res.ok) throw new Error(json.error || 'Transcription failed');
-
-  if (json.text?.trim()) {
-    transcriptEl.value += `${json.text.trim()}\n`;
-    detectLatestQuestion();
-  }
-}
-
-startSystem.addEventListener('click', async () => {
-  try {
-    if (providerEl.value !== 'openai') {
-      status('System/tab audio transcription currently requires provider=openai.', true);
-      return;
-    }
-
-    captureStream = await navigator.mediaDevices.getDisplayMedia({
-      video: true,
-      audio: true
-    });
-
-    mediaRecorder = new MediaRecorder(captureStream, { mimeType: 'audio/webm' });
-    mediaRecorder.ondataavailable = async (event) => {
-      if (event.data && event.data.size > 0) {
-        try {
-          await transcribeChunk(event.data);
-        } catch (err) {
-          status(err.message, true);
-        }
-      }
-    };
-
-    mediaRecorder.start();
-    recordingInterval = setInterval(() => {
-      if (mediaRecorder && mediaRecorder.state === 'recording') {
-        mediaRecorder.requestData();
-      }
-    }, 8000);
-
-    status('System/tab audio capture started. Share a tab/window with audio enabled.');
-  } catch (error) {
-    status(`Could not start system audio: ${error.message}`, true);
-  }
-});
-
-stopSystem.addEventListener('click', () => {
-  if (recordingInterval) clearInterval(recordingInterval);
-  if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
-  if (captureStream) captureStream.getTracks().forEach((t) => t.stop());
-  status('System/tab audio capture stopped.');
-});
-
-async function uploadText(fileInput, target) {
+async function uploadFile(fileInput, targetTextarea) {
   const file = fileInput.files?.[0];
   if (!file) return;
-  const data = new FormData();
-  data.append('file', file);
-  const res = await fetch('/api/upload', { method: 'POST', body: data });
-  const json = await res.json();
-  if (!res.ok) throw new Error(json.error || 'Upload failed');
-  target.value = json.text.slice(0, 120000);
+
+  const form = new FormData();
+  form.append('file', file);
+
+  const res = await fetch('/api/upload', { method: 'POST', body: form });
+  const data = await res.json();
+
+  if (!res.ok) throw new Error(data.error || 'Upload failed');
+  targetTextarea.value = data.text.slice(0, 120000);
 }
 
-resumeFile.addEventListener('change', () => uploadText(resumeFile, resumeTextEl).catch((e) => status(e.message, true)));
-notesFile.addEventListener('change', () => uploadText(notesFile, notesTextEl).catch((e) => status(e.message, true)));
+resumeFile.addEventListener('change', () => uploadFile(resumeFile, resumeTextEl).catch((e) => setStatus(e.message, true)));
+notesFile.addEventListener('change', () => uploadFile(notesFile, notesTextEl).catch((e) => setStatus(e.message, true)));
 
 getAnswer.addEventListener('click', async () => {
   try {
-    status('Generating answer...');
+    setStatus('Generating answer...');
+
     const res = await fetch('/api/answer', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        ...providerPayload(),
-        mode: modeEl.value,
         question: questionEl.value,
         transcript: transcriptEl.value,
         resumeText: resumeTextEl.value,
-        notesText: notesTextEl.value
+        notesText: notesTextEl.value,
+        mode: modeEl.value
       })
     });
-    const json = await res.json();
-    if (!res.ok) throw new Error(json.error || 'Failed to generate answer');
-    answerEl.value = json.answer;
-    status('Answer ready.');
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed');
+
+    answerEl.value = data.answer;
+    setStatus('Answer generated.');
   } catch (error) {
-    status(error.message, true);
+    setStatus(error.message, true);
   }
 });
 
 summarize.addEventListener('click', async () => {
   try {
-    status('Summarizing...');
+    setStatus('Summarizing transcript...');
+
     const res = await fetch('/api/summarize', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        ...providerPayload(),
-        transcript: transcriptEl.value
-      })
+      body: JSON.stringify({ transcript: transcriptEl.value })
     });
-    const json = await res.json();
-    if (!res.ok) throw new Error(json.error || 'Failed to summarize');
-    answerEl.value = json.summary;
-    status('Summary ready.');
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed');
+
+    answerEl.value = data.summary;
+    setStatus('Summary generated.');
   } catch (error) {
-    status(error.message, true);
+    setStatus(error.message, true);
   }
 });
