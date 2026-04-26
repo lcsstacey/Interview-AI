@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>InterviewSpark AI</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="logo">✨ InterviewSpark AI</div>
+      <nav>
+        <a href="#features">Features</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#app">App</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <h1>Your Real-Time AI Interview Practice Assistant</h1>
+      <p>Works on your MacBook in the browser. Live transcription, instant answers, coding support, and auto notes.</p>
+      <button id="jumpApp">Open App</button>
+    </section>
+
+    <section id="features" class="cards">
+      <article><h3>🎙️ Live Speech Recognition</h3><p>Capture interview questions from your microphone in real-time.</p></article>
+      <article><h3>💡 Instant AI Answers</h3><p>Generate concise, interview-ready responses using GPT models.</p></article>
+      <article><h3>🧠 Resume + Docs Context</h3><p>Upload your resume and notes so answers are tailored to your background.</p></article>
+      <article><h3>📝 Post-Interview Notes</h3><p>Summarize transcripts into key points and action items.</p></article>
+    </section>
+
+    <section id="app" class="app">
+      <h2>Practice Copilot</h2>
+      <div class="grid">
+        <div>
+          <label>Mode</label>
+          <select id="mode">
+            <option value="general">General</option>
+            <option value="behavioral">Behavioral</option>
+            <option value="coding">Coding</option>
+            <option value="system-design">System Design</option>
+          </select>
+
+          <label>Detected / typed question</label>
+          <textarea id="question" rows="4" placeholder="Ask a question or use live transcription..."></textarea>
+
+          <div class="buttons">
+            <button id="startRec">Start Listening</button>
+            <button id="stopRec">Stop</button>
+            <button id="getAnswer">Generate Answer</button>
+          </div>
+
+          <label>Live transcript</label>
+          <textarea id="transcript" rows="7" placeholder="Transcript appears here..."></textarea>
+        </div>
+
+        <div>
+          <label>Resume (txt/md)</label>
+          <input type="file" id="resumeFile" accept=".txt,.md,.json,.csv" />
+          <textarea id="resumeText" rows="5" placeholder="Or paste resume text..."></textarea>
+
+          <label>Supporting docs / notes (txt/md)</label>
+          <input type="file" id="notesFile" accept=".txt,.md,.json,.csv" />
+          <textarea id="notesText" rows="5" placeholder="Or paste notes..."></textarea>
+
+          <label>AI answer</label>
+          <textarea id="answer" rows="9" placeholder="Generated answer appears here..."></textarea>
+          <div class="buttons">
+            <button id="summarize">Summarize Transcript</button>
+          </div>
+        </div>
+      </div>
+      <p id="status"></p>
+    </section>
+
+    <footer>
+      <p>Built for interview practice and coaching. Use responsibly.</p>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
