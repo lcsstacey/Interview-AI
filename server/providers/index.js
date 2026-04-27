@@ -1,33 +1,61 @@
 import OpenAI from 'openai';
 import Anthropic from '@anthropic-ai/sdk';
-import { env, hasAnthropic, hasOpenAI } from '../env.js';
+import { getEffectiveConfig } from '../env.js';
 
-export const openai = hasOpenAI ? new OpenAI({ apiKey: env.OPENAI_API_KEY }) : null;
-export const anthropic = hasAnthropic ? new Anthropic({ apiKey: env.ANTHROPIC_API_KEY }) : null;
+let _openai = null;
+let _anthropic = null;
+let _signature = '';
+
+function configure() {
+  const c = getEffectiveConfig();
+  const sig = `${c.ANTHROPIC_API_KEY}|${c.OPENAI_API_KEY}`;
+  if (sig === _signature) return;
+  _signature = sig;
+  _openai = c.OPENAI_API_KEY ? new OpenAI({ apiKey: c.OPENAI_API_KEY }) : null;
+  _anthropic = c.ANTHROPIC_API_KEY ? new Anthropic({ apiKey: c.ANTHROPIC_API_KEY }) : null;
+}
+
+/** Force re-read of config (e.g. after Settings UI saves new keys). */
+export function reloadProviders() {
+  _signature = '';
+  configure();
+}
+
+export function getProviders() {
+  configure();
+  return { openai: _openai, anthropic: _anthropic };
+}
+
+export function getProviderStatus() {
+  const { openai, anthropic } = getProviders();
+  return { openai: !!openai, anthropic: !!anthropic };
+}
 
 export function pickProvider({ provider, model } = {}) {
-  const p = provider || env.DEFAULT_PROVIDER;
-  const m = model || env.DEFAULT_MODEL;
+  const { openai, anthropic } = getProviders();
+  const cfg = getEffectiveConfig();
+  const p = provider || cfg.DEFAULT_PROVIDER;
+  const m = model || cfg.DEFAULT_MODEL;
   if (p === 'anthropic') {
-    if (!anthropic) throw new Error('Anthropic key missing. Add ANTHROPIC_API_KEY to .env.');
+    if (!anthropic) throw new Error('Anthropic key missing. Add it in Settings.');
     return { provider: 'anthropic', model: m };
   }
   if (p === 'openai') {
-    if (!openai) throw new Error('OpenAI key missing. Add OPENAI_API_KEY to .env.');
+    if (!openai) throw new Error('OpenAI key missing. Add it in Settings.');
     return { provider: 'openai', model: m };
   }
   throw new Error(`Unknown provider: ${p}`);
 }
 
-/**
- * Stream model output as Server-Sent Events with `delta`, `done`, `error` events.
- */
+/** Stream model output as SSE: `delta`, `done`, `error` events. */
 export async function streamLLM(res, target, { system, user, imageBase64 }) {
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache, no-transform');
   res.setHeader('Connection', 'keep-alive');
   res.setHeader('X-Accel-Buffering', 'no');
   res.flushHeaders?.();
+
+  const { openai, anthropic } = getProviders();
 
   const send = (event, data) => {
     res.write(`event: ${event}\n`);
@@ -49,7 +77,6 @@ export async function streamLLM(res, target, { system, user, imageBase64 }) {
         system,
         messages: [{ role: 'user', content: userContent }]
       });
-
       stream.on('text', (chunk) => send('delta', { text: chunk }));
       stream.on('error', (err) => send('error', { error: err.message }));
       await stream.finalMessage();

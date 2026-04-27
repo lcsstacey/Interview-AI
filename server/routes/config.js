@@ -1,16 +1,15 @@
 import { Router } from 'express';
-import { env, hasAnthropic, hasOpenAI, MODELS } from '../env.js';
+import { getEffectiveConfig, MODELS } from '../env.js';
+import { getProviderStatus } from '../providers/index.js';
 
 const router = Router();
 
 router.get('/', (_req, res) => {
+  const cfg = getEffectiveConfig();
   res.json({
-    providers: {
-      anthropic: hasAnthropic,
-      openai: hasOpenAI
-    },
-    defaultProvider: env.DEFAULT_PROVIDER,
-    defaultModel: env.DEFAULT_MODEL,
+    providers: getProviderStatus(),
+    defaultProvider: cfg.DEFAULT_PROVIDER,
+    defaultModel: cfg.DEFAULT_MODEL,
     models: MODELS
   });
 });

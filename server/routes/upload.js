@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import multer from 'multer';
 import pdfParse from 'pdf-parse';
-import { openai } from '../providers/index.js';
 import OpenAI from 'openai';
-import { env } from '../env.js';
+import { getProviders } from '../providers/index.js';
+import { getEffectiveConfig } from '../env.js';
 
 const router = Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 25 * 1024 * 1024 } });
@@ -28,14 +28,15 @@ router.post('/document', upload.single('file'), async (req, res) => {
 
 router.post('/audio', upload.single('audio'), async (req, res) => {
   try {
-    if (!openai) return res.status(400).json({ error: 'OPENAI_API_KEY not set (Whisper requires it).' });
+    const { openai } = getProviders();
+    if (!openai) return res.status(400).json({ error: 'OpenAI key required for Whisper. Add it in Settings.' });
     if (!req.file) return res.status(400).json({ error: 'No audio uploaded.' });
     const file = await OpenAI.toFile(req.file.buffer, req.file.originalname || 'audio.webm', {
       type: req.file.mimetype || 'audio/webm'
     });
     const result = await openai.audio.transcriptions.create({
       file,
-      model: env.WHISPER_MODEL,
+      model: getEffectiveConfig().WHISPER_MODEL,
       response_format: 'json'
     });
     res.json({ text: result.text || '' });

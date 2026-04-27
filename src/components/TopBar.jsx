@@ -1,5 +1,6 @@
 import { useStore } from '../lib/store.js';
 import { ChevronDown, KeySquare } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function TopBar() {
   const { config, provider, model, setProvider, setModel } = useStore();
@@ -21,10 +22,13 @@ export default function TopBar() {
 
       <div className="ml-auto flex items-center gap-2">
         {noKeys ? (
-          <div className="flex items-center gap-2 rounded-xl border border-amber-400/30 bg-amber-400/[0.06] px-3 py-1.5 text-xs text-amber-200">
+          <Link
+            to="/settings"
+            className="flex items-center gap-2 rounded-xl border border-amber-400/30 bg-amber-400/[0.06] px-3 py-1.5 text-xs text-amber-200 transition hover:bg-amber-400/[0.1]"
+          >
             <KeySquare size={14} />
-            No API keys set — add one to <code className="rounded bg-black/30 px-1">.env</code> and restart.
-          </div>
+            No API keys yet — open Settings to add one
+          </Link>
         ) : (
           <>
             <Select

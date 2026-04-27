@@ -7,6 +7,7 @@ import MockSession from './pages/MockSession.jsx';
 import CodingPractice from './pages/CodingPractice.jsx';
 import KnowledgeBase from './pages/KnowledgeBase.jsx';
 import SessionSummary from './pages/SessionSummary.jsx';
+import Settings from './pages/Settings.jsx';
 import { useStore } from './lib/store.js';
 
 export default function App() {
@@ -27,6 +28,7 @@ export default function App() {
             <Route path="/coding" element={<CodingPractice />} />
             <Route path="/knowledge" element={<KnowledgeBase />} />
             <Route path="/summary" element={<SessionSummary />} />
+            <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>

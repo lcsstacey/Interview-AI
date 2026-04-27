@@ -5,7 +5,8 @@ import {
   Code2,
   FolderOpen,
   Sparkles,
-  ScrollText
+  ScrollText,
+  Settings as SettingsIcon
 } from 'lucide-react';
 
 const items = [
@@ -13,7 +14,8 @@ const items = [
   { to: '/session', label: 'Mock Session', icon: Mic },
   { to: '/coding', label: 'Coding Practice', icon: Code2 },
   { to: '/knowledge', label: 'Knowledge', icon: FolderOpen },
-  { to: '/summary', label: 'Last Summary', icon: ScrollText }
+  { to: '/summary', label: 'Last Summary', icon: ScrollText },
+  { to: '/settings', label: 'Settings', icon: SettingsIcon }
 ];
 
 export default function Sidebar() {
