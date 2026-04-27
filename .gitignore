@@ -1,0 +1,10 @@
+node_modules/
+dist/
+release/
+.env
+.DS_Store
+*.log
+
+# Generated patch files (delivery artifacts)
+*.patch
+patches/

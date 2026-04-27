@@ -1,16 +1,48 @@
 {
-  "name": "interview-ai-assistant",
-  "version": "1.0.0",
-  "description": "Local interview practice copilot for macOS",
-  "main": "server.js",
+  "name": "interview-studio-ai",
+  "version": "2.0.0",
+  "private": true,
+  "description": "A premium Mac-installable AI interview practice studio.",
+  "type": "module",
+  "main": "electron/main.cjs",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "concurrently -k -n server,client -c blue,magenta \"npm:dev:server\" \"npm:dev:client\"",
+    "dev:server": "node --watch server/index.js",
+    "dev:client": "vite",
+    "build": "vite build",
+    "start": "NODE_ENV=production node server/index.js",
+    "preview": "vite preview",
+    "electron:dev": "concurrently -k -n vite,electron -c magenta,cyan \"npm:dev:client\" \"wait-on http://localhost:5173 && cross-env VITE_DEV_URL=http://localhost:5173 electron .\"",
+    "package": "vite build && electron-builder --mac --config electron-builder.config.cjs",
+    "package:dmg": "vite build && electron-builder --mac dmg --config electron-builder.config.cjs"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.1",
     "dotenv": "^16.4.5",
     "express": "^4.21.2",
     "multer": "^1.4.5-lts.1",
-    "openai": "^4.104.0"
+    "openai": "^4.104.0",
+    "pdf-parse": "^1.1.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.1.0",
+    "cross-env": "^7.0.3",
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8",
+    "highlight.js": "^11.10.0",
+    "lucide-react": "^0.468.0",
+    "postcss": "^8.4.49",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-markdown": "^9.0.1",
+    "react-router-dom": "^6.28.0",
+    "rehype-highlight": "^7.0.1",
+    "remark-gfm": "^4.0.0",
+    "tailwindcss": "^3.4.17",
+    "vite": "^6.0.3",
+    "wait-on": "^8.0.1",
+    "zustand": "^5.0.2"
   }
 }
