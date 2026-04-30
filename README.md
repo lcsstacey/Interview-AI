@@ -1,4 +1,4 @@
-# Interview Studio AI
+# Paraccord
 
 A premium, Mac-installable AI **interview practice studio** — for mock sessions, behavioral coaching, coding practice, and post-session notes.
 
